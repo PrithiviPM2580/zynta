@@ -11,6 +11,7 @@
     "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^25.6.0",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1"
@@ -33,5 +34,11 @@
     "passport-jwt": "^4.0.1",
     "socket.io": "^4.8.3",
     "zod": "^4.3.6"
+  },
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch"
   }
 }
