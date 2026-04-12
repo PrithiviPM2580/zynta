@@ -1,6 +1,10 @@
 import Chat from "../models/chat.model";
+import Message from "../models/message.model";
 import User from "../models/user.model";
-import { NotFoundException } from "../utils/app-error.util";
+import {
+  BadRequestException,
+  NotFoundException,
+} from "../utils/app-error.util";
 import type { CreateChatSchemaType } from "../validators/chat.validator";
 
 export const createChatService = async (
@@ -57,4 +61,34 @@ export const getUserChatsService = async (userId: string) => {
     .sort({ updatedAt: -1 })
     .lean();
   return chats;
+};
+
+export const getChatService = async (userId: string, chatId: string) => {
+  const chat = await Chat.findOne({
+    _id: chatId,
+    participants: {
+      $in: [userId],
+    },
+  });
+
+  if (!chat) {
+    throw new BadRequestException(
+      "Chat not found or you don't have access to this chat",
+    );
+  }
+
+  const messages = await Message.find({ chat: chatId })
+    .populate("sender", "name avatar")
+    .populate({
+      path: "replyTo",
+      select: "content image sender",
+      populate: {
+        path: "sender",
+        select: "name avatar",
+      },
+    })
+    .sort({ createdAt: 1 })
+    .lean();
+
+  return { chat, messages };
 };
