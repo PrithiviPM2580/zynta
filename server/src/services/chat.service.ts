@@ -69,7 +69,9 @@ export const getChatService = async (userId: string, chatId: string) => {
     participants: {
       $in: [userId],
     },
-  });
+  })
+    .populate("participants", "name avatar")
+    .lean();
 
   if (!chat) {
     throw new BadRequestException(
@@ -77,7 +79,7 @@ export const getChatService = async (userId: string, chatId: string) => {
     );
   }
 
-  const messages = await Message.find({ chat: chatId })
+  const messages = await Message.find({ chatId })
     .populate("sender", "name avatar")
     .populate({
       path: "replyTo",

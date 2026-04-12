@@ -39,6 +39,7 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "seed:users": "bun src/seed/run-user.seed.ts"
   }
 }
