@@ -41,13 +41,15 @@ export const sendMessageService = async (
     imageUrl = uploadRes.secure_url;
   }
 
-  const newMessage = await Message.create({
+  const messagePayload = {
     chatId,
     sender: userId,
     content,
     image: imageUrl,
-    replyTo: replyToId,
-  });
+    ...(replyToId ? { replyTo: replyToId } : {}),
+  };
+
+  const newMessage = await Message.create(messagePayload);
 
   await newMessage.populate([
     {
