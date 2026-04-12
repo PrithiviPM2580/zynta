@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from "../utils/app-error.util";
 import type { CreateChatSchemaType } from "../validators/chat.validator";
+import { emitNewChatParticipants } from "../lib/socket.lib";
 
 export const createChatService = async (
   userId: string,
@@ -43,7 +44,13 @@ export const createChatService = async (
     });
   }
 
-  //Implement websocket
+  const populatedChat = await chat?.populate("participants", "name avatar");
+  const participantIdStrings = populatedChat?.participants.map((p) =>
+    p._id.toString(),
+  );
+
+  //Websocket
+  emitNewChatParticipants(participantIdStrings, populatedChat);
   return chat;
 };
 
@@ -93,4 +100,18 @@ export const getChatService = async (userId: string, chatId: string) => {
     .lean();
 
   return { chat, messages };
+};
+
+export const validateChatParticipant = async (
+  chatId: string,
+  userId: string,
+) => {
+  const chat = await Chat.findOne({
+    _id: chatId,
+    participants: {
+      $in: [userId],
+    },
+  }).lean();
+  if (!chat) throw new BadRequestException("User not a participant ");
+  return chat;
 };
