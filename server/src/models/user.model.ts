@@ -8,6 +8,8 @@ export interface UserDocument extends Document {
   avatar?: string | null;
   createdAt: Date;
   updatedAt: Date;
+
+  comparePassword(password: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<UserDocument>(
@@ -26,6 +28,7 @@ const userSchema = new Schema<UserDocument>(
     },
     password: {
       type: String,
+      select: false,
       required: true,
     },
     avatar: {
