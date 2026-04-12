@@ -10,6 +10,7 @@ import { HTTPSTATUS } from "./config/http.config";
 import { asyncHandler } from "./middlewares/async-handler.middleware";
 import { errorHandler } from "./middlewares/error-handler.middleware";
 import { connectDatabase } from "./config/database.config";
+import router from "./routes/index.route";
 import "./config/passport.config";
 
 const app: Express = express();
@@ -36,6 +37,7 @@ app.get(
     });
   }),
 );
+app.use("/api", router);
 
 app.use(errorHandler);
 
