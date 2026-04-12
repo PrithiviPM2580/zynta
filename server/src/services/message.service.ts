@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.config";
 import Chat from "../models/chat.model";
 import Message from "../models/message.model";
@@ -26,7 +27,7 @@ export const sendMessageService = async (
     const replyMessage = await Message.findOne({
       _id: replyToId,
       chatId,
-    });
+    }).lean();
 
     if (!replyMessage) {
       throw new NotFoundException("Reply message not found");
@@ -66,7 +67,12 @@ export const sendMessageService = async (
     },
   ]);
 
+  chat.lastMessage = newMessage._id as mongoose.Types.ObjectId;
+  await chat.save();
+
   //Websocket
+  const allParticipantIds = chat.participants.map((p) => p.toString());
+  emitLastMessageToParticipants(allParticipantIds, chatId, newMessage);
 
   return { userMessage: newMessage, chat };
 };

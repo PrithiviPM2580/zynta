@@ -101,6 +101,6 @@ export const emitNewChatParticipants = (
 ) => {
   const io = getIO();
   for (const participantId of participantIds) {
-    io.to(`user:${participantId}`).emit("chat:new-participants", chat);
+    io.to(`user:${participantId}`).emit("chat:new", chat);
   }
 };
