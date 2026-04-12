@@ -4,11 +4,13 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
+import passport from "passport";
 import { Env } from "./config/env.config";
 import { HTTPSTATUS } from "./config/http.config";
 import { asyncHandler } from "./middlewares/async-handler.middleware";
 import { errorHandler } from "./middlewares/error-handler.middleware";
 import { connectDatabase } from "./config/database.config";
+import "./config/passport.config";
 
 const app: Express = express();
 
@@ -23,6 +25,7 @@ app.use(
   }),
 );
 app.use(morgan("dev"));
+app.use(passport.initialize());
 
 app.get(
   "/health",
