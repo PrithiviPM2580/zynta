@@ -1,3 +1,4 @@
+import cloudinary from "../config/cloudinary.config";
 import Chat from "../models/chat.model";
 import Message from "../models/message.model";
 import {
@@ -26,41 +27,44 @@ export const sendMessageService = async (
       _id: replyToId,
       chatId,
     });
+
     if (!replyMessage) {
       throw new NotFoundException("Reply message not found");
     }
+  }
 
-    let imageUrl;
+  let imageUrl;
 
-    if (image) {
-      //Cloudinary upload logic here
-    }
+  if (image) {
+    //Cloudinary upload logic here
+    const uploadRes = await cloudinary.uploader.upload(image);
+    imageUrl = uploadRes.secure_url;
+  }
 
-    const newMessage = await Message.create({
-      chatId,
-      sender: userId,
-      content,
-      image: imageUrl,
-      replyTo: replyToId,
-    });
+  const newMessage = await Message.create({
+    chatId,
+    sender: userId,
+    content,
+    image: imageUrl,
+    replyTo: replyToId,
+  });
 
-    await newMessage.populate([
-      {
+  await newMessage.populate([
+    {
+      path: "sender",
+      select: "name avatar",
+    },
+    {
+      path: "replyTo",
+      select: "content image sender",
+      populate: {
         path: "sender",
         select: "name avatar",
       },
-      {
-        path: "replyTo",
-        select: "content image sender",
-        populate: {
-          path: "sender",
-          select: "name avatar",
-        },
-      },
-    ]);
+    },
+  ]);
 
-    //Websocket
+  //Websocket
 
-    return { message: newMessage, chat };
-  }
+  return { userMessage: newMessage, chat };
 };
