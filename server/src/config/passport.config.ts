@@ -2,12 +2,17 @@ import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { findByIdUserService } from "../services/user.service";
 import { Env } from "./env.config";
+import { UnauthorizedException } from "../utils/app-error.util";
 
 passport.use(
   new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req) => req.cookies?.accessToken || null,
+        (req) => {
+          const token = req.cookies?.accessToken;
+          if (!token) throw new UnauthorizedException("Unauthorized access");
+          return token;
+        },
       ]),
       secretOrKey: Env.JWT_SECRET,
       audience: ["user"],

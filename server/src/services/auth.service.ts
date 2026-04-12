@@ -28,7 +28,7 @@ export const registerService = async (body: RegisterSchemaType) => {
 export const loginService = async (body: LoginSchemaType) => {
   const { email, password } = body;
 
-  const user = await User.findOne({ email }).lean();
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
     throw new NotFoundException("User not found with this email");
   }
