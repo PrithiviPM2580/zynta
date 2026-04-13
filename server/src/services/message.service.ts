@@ -7,6 +7,10 @@ import {
   NotFoundException,
 } from "../utils/app-error.util";
 import type { SendMessageSchemaType } from "../validators/message.validator";
+import {
+  emitLastMessageToParticipants,
+  emitNewMessageToChatRoom,
+} from "../lib/socket.lib";
 
 export const sendMessageService = async (
   userId: string,
@@ -69,6 +73,8 @@ export const sendMessageService = async (
 
   chat.lastMessage = newMessage._id as mongoose.Types.ObjectId;
   await chat.save();
+
+  emitNewMessageToChatRoom(userId, chatId, newMessage);
 
   //Websocket
   const allParticipantIds = chat.participants.map((p) => p.toString());

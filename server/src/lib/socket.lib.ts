@@ -104,3 +104,31 @@ export const emitNewChatParticipants = (
     io.to(`user:${participantId}`).emit("chat:new", chat);
   }
 };
+
+export function emitNewMessageToChatRoom(
+  senderId: string,
+  chatId: string,
+  message: any,
+) {
+  const io = getIO();
+  const senderSocketId = onlineUsers.get(senderId);
+
+  if (senderSocketId) {
+    io.to(`chat:${chatId}`).except(senderSocketId).emit("message:new", message);
+  } else {
+    io.to(`chat:${chatId}`).emit("message:new", message);
+  }
+}
+
+export function emitLastMessageToParticipants(
+  participantIds: string[],
+  chatId: string,
+  lastMessage: any,
+) {
+  const io = getIO();
+  const payload = { chatId, lastMessage };
+
+  for (const participantId of participantIds) {
+    io.to(`user:${participantId}`).emit("chat:update", payload);
+  }
+}
