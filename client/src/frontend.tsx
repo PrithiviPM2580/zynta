@@ -18,7 +18,7 @@ const app = (
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <App />
-        <Toaster position="bottom-right" />
+        <Toaster position="bottom-right" richColors />
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
