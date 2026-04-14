@@ -43,6 +43,12 @@ app.get(
   }),
 );
 app.use("/api", router);
+app.all("/{*splat}", (req: Request, res: Response) => {
+  res.status(HTTPSTATUS.NOT_FOUND).json({
+    message: "Route not found",
+    status: "NOT_FOUND",
+  });
+});
 
 app.use(errorHandler);
 
