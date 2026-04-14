@@ -1,12 +1,26 @@
 import { useChat } from "@/hooks/use-chat";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Spinner } from "../ui/spinner";
 import ChatListItem from "./chat-list-item";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
 
 const ChatList = () => {
   const { fetchChats, chats, isChatsLoading } = useChat();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const currentUserId = user?._id || null;
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const filterdChats = chats?.filter(
+    (chat) =>
+      chat.groupName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat.participants?.some(
+        (p) =>
+          p._id !== currentUserId &&
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+  );
 
   useEffect(() => {
     fetchChats();
@@ -24,15 +38,16 @@ const ChatList = () => {
               <div className="flex items-center justify-center">
                 <Spinner />
               </div>
-            ) : chats.length === 0 ? (
+            ) : filterdChats.length === 0 ? (
               <div className="flex items-center justify-center">
-                No chats created
+                {searchQuery ? "No chat found" : "No chats created"}
               </div>
             ) : (
-              chats.map((chat) => (
+              filterdChats.map((chat) => (
                 <ChatListItem
                   key={chat._id}
                   chat={chat}
+                  currentUserId={currentUserId}
                   onClick={() => onRoute(chat._id)}
                 />
               ))
