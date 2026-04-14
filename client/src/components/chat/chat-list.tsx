@@ -2,13 +2,19 @@ import { useChat } from "@/hooks/use-chat";
 import React, { useEffect } from "react";
 import { Spinner } from "../ui/spinner";
 import ChatListItem from "./chat-list-item";
+import { useNavigate } from "react-router-dom";
 
 const ChatList = () => {
   const { fetchChats, chats, isChatsLoading } = useChat();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchChats();
   }, [fetchChats]);
+
+  const onRoute = (id: string) => {
+    navigate(`/chat/${id}`);
+  };
   return (
     <div className="fixed inset-y-0 pb-20 lg:pb-0 lg:max-w-94.75 lg:block border-r border-border bg-sidebar dark:bg-background max-w-[calc(100% - 40px)] w-full left-10 z-50">
       <div className="flex-col">
@@ -24,7 +30,11 @@ const ChatList = () => {
               </div>
             ) : (
               chats.map((chat) => (
-                <ChatListItem key={chat._id} chat={chat} onClick={() => null} />
+                <ChatListItem
+                  key={chat._id}
+                  chat={chat}
+                  onClick={() => onRoute(chat._id)}
+                />
               ))
             )}
           </div>
