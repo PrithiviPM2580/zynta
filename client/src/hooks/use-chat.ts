@@ -20,8 +20,9 @@ interface ChatState {
 
   fetchAllUsers: () => void;
   fetchChats: () => void;
-  createChat: (payload: CreateChatType) => void;
+  createChat: (payload: CreateChatType) => Promise<ChatType | null>;
   fetchSingleChat: (chatId: string) => void;
+  addNewChat: (newChat: ChatType) => void;
 }
 
 export const useChat = create<ChatState>((set, get) => ({
@@ -60,11 +61,13 @@ export const useChat = create<ChatState>((set, get) => ({
   createChat: async (payload: CreateChatType) => {
     set({ isCreatingChat: true });
     try {
-      const { data } = await API.post("/chat", payload);
-      set({ chats: [...get().chats, data.chat] });
+      const { data } = await API.post("/chat/create", payload);
+      get().addNewChat(data.chat);
       toast.success("Chat created successfully");
+      return data.chat;
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Failed to create chat");
+      return null;
     } finally {
       set({ isCreatingChat: false });
     }
@@ -82,5 +85,21 @@ export const useChat = create<ChatState>((set, get) => ({
     } finally {
       set({ isSingleChatLoading: false });
     }
+  },
+  addNewChat: (newChat: ChatType) => {
+    set((state) => {
+      const existingChatIndex = state.chats.findIndex(
+        (c) => c._id === newChat._id,
+      );
+      if (existingChatIndex !== -1) {
+        return {
+          chats: [newChat, ...state.chats.filter((c) => c._id !== newChat._id)],
+        };
+      } else {
+        return {
+          chats: [newChat, ...state.chats],
+        };
+      }
+    });
   },
 }));
