@@ -1,5 +1,6 @@
 import { API } from "@/lib/axios-client";
 import type { LoginType, RegisterType, UserType } from "@/types/auth.type";
+import axios from "axios";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -67,6 +68,12 @@ export const useAuth = create<AuthState>()(
           const response = await API.get("/auth/status");
           set({ user: response.data.user });
         } catch (error: any) {
+          if (axios.isAxiosError(error) && error.response?.status === 401) {
+            set({ user: null });
+            useSocket.getState().disconnectSocket();
+            return;
+          }
+
           toast.error(
             error.response?.data?.message ||
               "Failed to check authentication status",
