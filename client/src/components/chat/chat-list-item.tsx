@@ -16,12 +16,28 @@ const ChatListItem = ({ chat, onClick }: ChatListItemProps) => {
 
   const { lastMessage, createdAt } = chat;
   const { user } = useAuth();
-  const currentId = user?._id || null;
+  const currentUserId = user?._id || null;
 
   const { name, avatar, isOnline, isGroup } = getOtherUserGroup(
     chat,
-    currentId,
+    currentUserId,
   );
+
+  const getLastMessageText = () => {
+    if (!lastMessage) {
+      return isGroup
+        ? chat.createdby === currentUserId
+          ? "Group created"
+          : "You were added"
+        : "Send a message";
+    }
+    if (lastMessage.image) return "📷 Photo";
+    if (isGroup && lastMessage.sender) {
+      return `${lastMessage.sender._id === currentUserId ? "You" : lastMessage.sender.name}: ${lastMessage.content}`;
+    }
+
+    return lastMessage.content;
+  };
   return (
     <Button
       onClick={onClick}
@@ -43,6 +59,9 @@ const ChatListItem = ({ chat, onClick }: ChatListItemProps) => {
             {formatChatTime(lastMessage?.updatedAt || createdAt)}
           </span>
         </div>
+        <p className="text-xs truncate text-muted-foreground -mt-px">
+          {getLastMessageText()}
+        </p>
       </div>
     </Button>
   );
