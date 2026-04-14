@@ -1,8 +1,8 @@
 import { Socket, io } from "socket.io-client";
 import { create } from "zustand";
-import { appEnv } from "../lib/env";
+import { appEnv } from "@/lib/env";
 
-const BASE_URL = appEnv.isDev && appEnv.apiUrl ? appEnv.apiUrl : "/";
+const BASE_URL = appEnv.NODE_ENV === "development" ? appEnv.API_URL : "/";
 
 interface SocketState {
   socket: Socket | null;
