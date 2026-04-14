@@ -67,6 +67,7 @@ export const useAuth = create<AuthState>()(
         try {
           const response = await API.get("/auth/status");
           set({ user: response.data.user });
+          useSocket.getState().connectSocket();
         } catch (error: any) {
           if (axios.isAxiosError(error) && error.response?.status === 401) {
             set({ user: null });

@@ -16,7 +16,7 @@ export const useSocket = create<SocketState>((set, get) => ({
   onlineUsers: [],
   connectSocket: () => {
     const { socket } = get();
-    if (socket?.connected) return;
+    if (socket) return;
 
     const newSocket = io(BASE_URL, {
       withCredentials: true,
@@ -37,7 +37,7 @@ export const useSocket = create<SocketState>((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.disconnect();
-      set({ socket: null });
+      set({ socket: null, onlineUsers: [] });
     }
   },
 }));
